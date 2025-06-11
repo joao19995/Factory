@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://cm2pfpbp5rn1p"]
+
+[ext_resource type="Script" uid="uid://b340s7r45v6t8" path="res://Prefabs/Machine.cs" id="1_8c1ej"]
+[ext_resource type="Texture2D" uid="uid://2evppgmg708e" path="res://Art/Tiles.png.PNG" id="1_rq0t2"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_8c1ej"]
+
+[node name="Machine" type="Node2D"]
+material = SubResource("CanvasItemMaterial_8c1ej")
+script = ExtResource("1_8c1ej")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_rq0t2")
+region_enabled = true
+region_rect = Rect2(32, 32, 16, 16)
+region_filter_clip_enabled = true

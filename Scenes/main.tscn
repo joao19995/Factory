@@ -1,0 +1,40 @@
+[gd_scene load_steps=8 format=4 uid="uid://djr0j6y7wwvr6"]
+
+[ext_resource type="Script" uid="uid://bx4rvsp0lgs5c" path="res://Scenes/Main.cs" id="1_jjgbg"]
+[ext_resource type="TileSet" uid="uid://dob161f50gsgo" path="res://Tiles/FactoryTiles.tres" id="2_8gbba"]
+[ext_resource type="PackedScene" uid="uid://cm2pfpbp5rn1p" path="res://Prefabs/Machine.tscn" id="2_jjvhh"]
+[ext_resource type="PackedScene" uid="uid://bkjwlx1ntjbi2" path="res://Prefabs/Item.tscn" id="3_6bp64"]
+[ext_resource type="Script" uid="uid://61g0phhloksi" path="res://Scripts/Grid/GridManager.cs" id="3_jjvhh"]
+[ext_resource type="Script" uid="uid://c1gucqxhiq2qa" path="res://Scenes/BuildMenu.cs" id="5_21xkr"]
+[ext_resource type="PackedScene" uid="uid://cqrqu6oxbct1p" path="res://Prefabs/Belt.tscn" id="6_6bp64"]
+
+[node name="Main" type="Node2D" node_paths=PackedStringArray("gridTileMap")]
+script = ExtResource("1_jjgbg")
+BeltPrefab = ExtResource("6_6bp64")
+ItemPrefab = ExtResource("3_6bp64")
+gridTileMap = NodePath("GridTileMap")
+MachinePrefab = ExtResource("2_jjvhh")
+
+[node name="GridTileMap" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray("AAAIAAwAAAAMAAgAAAAJAAwAAAAMAAgAAAAKAAwAAAAMAAgAAAALAAwAAAAMAAgAAAAMAAwAAAAMAAgAAAANAAwAAAAMAAgAAAANAAsAAAAMAAgAAAAMAAsAAAAMAAgAAAALAAsAAAAMAAgAAAAKAAsAAAAMAAgAAAAJAAsAAAAMAAgAAAAIAAsAAAAMAAgAAAAIAAoAAAAMAAgAAAAJAAoAAAAMAAgAAAAKAAoAAAAMAAgAAAALAAoAAAAMAAgAAAAMAAoAAAAMAAgAAAANAAoAAAAMAAgAAAANAAkAAAAMAAgAAAAMAAkAAAAMAAgAAAALAAkAAAAMAAgAAAAKAAkAAAAMAAgAAAAJAAkAAAAMAAgAAAAIAAkAAAAMAAgAAAANAAgAAAAMAAgAAAANAAcAAAAMAAgAAAAMAAcAAAAMAAgAAAALAAcAAAAMAAgAAAAKAAcAAAAMAAgAAAAJAAcAAAAMAAgAAAAIAAcAAAAMAAgAAAAIAAgAAAAMAAgAAAAJAAgAAAAMAAgAAAAKAAgAAAAMAAgAAAALAAgAAAAMAAgAAAAMAAgAAAAMAAgAAAA=")
+tile_set = ExtResource("2_8gbba")
+
+[node name="GridManager" type="Node2D" parent="."]
+script = ExtResource("3_jjvhh")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="BuildMenu" type="VBoxContainer" parent="UI"]
+offset_right = 74.0
+offset_bottom = 66.0
+script = ExtResource("5_21xkr")
+MachinePrefab = ExtResource("2_jjvhh")
+BeltPrefab = ExtResource("6_6bp64")
+
+[node name="MachineButton" type="Button" parent="UI/BuildMenu"]
+layout_mode = 2
+text = "Machine"
+
+[node name="BeltButton" type="Button" parent="UI/BuildMenu"]
+layout_mode = 2
+text = "Belt"
