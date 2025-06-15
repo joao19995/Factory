@@ -1,88 +1,42 @@
-using Godot;
-using System.Collections.Generic;
+using Godot; // Godot engine namespace
+using System.Collections.Generic; // For using Dictionary
 
-public partial class GridManager : Node2D
+public partial class GridManager : Node2D // GridManager inherits from Node2D for 2D grid logic
 {
-    public static GridManager Instance;
+    public static GridManager Instance; // Singleton instance for global access
 
-    private Dictionary<Vector2I, Node2D> gridContents = new();
-
-    private TileMapLayer gridTileMap;
+    private Dictionary<Vector2I, Node2D> gridContents = new(); // Stores structures at grid positions
 
     public override void _Ready()
     {
-        Instance = this;
-
-        // Replace with your actual node path if named differently
-        gridTileMap = GetParent().GetNode<TileMapLayer>("GridTileMap");
+        Instance = this; // Set singleton instance when node is ready
     }
-    public Node2D GetNodeAtGridPosition(Vector2I gridPos)
+
+    public void RegisterStructure(Vector2I position, Node2D structure)
     {
-        if (gridContents.TryGetValue(gridPos, out var node))
-            return node;
-        return null;
+        gridContents[position] = structure; // Register or update structure at given grid position
     }
 
-    public Vector2I WorldToGrid(Vector2 worldPos)
+    public bool HasStructureAt(Vector2I position)
     {
-        // Convert world → local → grid cell
-        Vector2 local = gridTileMap.ToLocal(worldPos);
-        Vector2I cell = gridTileMap.LocalToMap(local);
-        return cell;
+        return gridContents.ContainsKey(position); // Check if a structure exists at the given position
     }
 
-    public Vector2 GridToWorld(Vector2I gridPos)
+    public Node2D GetStructureAt(Vector2I position)
     {
-        // Convert grid cell → local → world
-        Vector2 local = gridTileMap.MapToLocal(gridPos);
-        Vector2 world = gridTileMap.ToGlobal(local);
-        return world;
+        return gridContents.TryGetValue(position, out var structure) ? structure : null; // Get structure or null if not found
     }
-
-    public bool IsCellOccupied(Vector2I gridPos)
-    {
-        return gridContents.ContainsKey(gridPos);
-    }
-
-public void Place(Node2D obj, Vector2I gridPos)
-{
-    if (IsCellOccupied(gridPos))
-    {
-        GD.Print($"❌ Cell {gridPos} is already occupied!");
-        return;
-    }
-
-    gridContents[gridPos] = obj;
-    obj.Position = GridToWorld(gridPos);
-    AddChild(obj);
-
-    if (obj is Belt belt)
-        belt.GridPosition = gridPos;
 }
 
-    public void Remove(Vector2I gridPos)
-    {
-        if (gridContents.TryGetValue(gridPos, out var obj))
-        {
-            obj.QueueFree();
-            gridContents.Remove(gridPos);
-        }
-    }
-    public Node2D GetChildAtGridPos(Vector2I gridPos)
-    {
-        if (gridContents.TryGetValue(gridPos, out var node))
-            return node;
-        return null;
-    }
-    public Belt GetBeltAtGridPosition(Vector2I gridPos)
-    {
-        if (GridManager.Instance.IsCellOccupied(gridPos))
-        {
-            var node = GridManager.Instance.GetChildAtGridPos(gridPos);
-            if (node is Belt belt)
-                return belt;
-        }
-        return null;
-    }
+// Suggestions for improvement:
+// - Add signals for structure added/removed for better decoupling.
+// - Implement removal of structures from the grid.
+// - Add error handling for duplicate or invalid registrations.
+// - Consider thread safety if accessed from multiple threads.
+// - Use a more robust singleton pattern (e.g., lazy initialization, error on duplicate).
+// - Support for multi-tile structures (occupying more than one grid cell).
+// - Add methods for iterating or querying all structures.
+// - Make grid size and boundaries configurable.
+// - Add serialization for saving/loading grid state.
+// - Use custom types or interfaces for structures for better type safety.
 
-}

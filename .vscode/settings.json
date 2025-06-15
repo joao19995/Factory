@@ -1,0 +1,28 @@
+{
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "text": "This project is Industrial Genesis, a factory simulation game built in Godot 4.4 using C#. Always write clean, idiomatic Godot C# code."
+    },
+    {
+      "text": "Use component-based architecture with modular scripts and signals for communication."
+    },
+    {
+      "text": "Avoid putting heavy logic in _Process unless necessary for real-time updates."
+    },
+    {
+      "text": "Write brief doc comments on classes and methods describing their purpose."
+    },
+    {
+      "text": "When generating code, align with the factory simulation context: machines, conveyors, multi-input/output processing, and tech tree progression."
+    },
+    {
+      "file": "general.instructions.md"
+    },
+    {
+      "file": "factory_simulation.instructions.md"
+    },
+    {
+        "file": "copilot.instructions.md" 
+    },
+  ]
+}

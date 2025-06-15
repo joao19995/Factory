@@ -1,12 +1,19 @@
-[gd_scene load_steps=3 format=3 uid="uid://bkjwlx1ntjbi2"]
+[gd_scene load_steps=4 format=3 uid="uid://bkjwlx1ntjbi2"]
 
 [ext_resource type="Texture2D" uid="uid://2evppgmg708e" path="res://Art/Tiles.png.PNG" id="1_3s507"]
-[ext_resource type="Script" uid="uid://ckw00vihim11m" path="res://Scripts/Item.cs" id="1_mht1t"]
+[ext_resource type="Script" uid="uid://b3knij30wxy2x" path="res://Scripts/Items/Item.cs" id="1_mht1t"]
 
-[node name="Item" type="Node2D"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mht1t"]
+size = Vector2(12, 12)
+
+[node name="Item" type="CharacterBody2D"]
+z_index = 1
 script = ExtResource("1_mht1t")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_3s507")
 region_enabled = true
-region_rect = Rect2(0, 0, 16, 16)
+region_rect = Rect2(0, 0, 12, 12)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_mht1t")
