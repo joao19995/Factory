@@ -1,11 +1,12 @@
 using Godot;
+using NovoProjetodejogo.Managers;
 using NovoProjetodejogo.Scripts.Items;
 
 public partial class Belt : Node2D
 {
     private Item currentItem = null;
 
-    [Export] public Vector2I Direction = new Vector2I(1, 0);
+    [Export] public Vector2I Direction = new(1, 0);
     [Export] public float Speed = 30f; // units per second (pixels/sec)
     public Vector2I GridPosition;
 
@@ -17,7 +18,6 @@ public partial class Belt : Node2D
 
     public override void _Ready()
     {
-
         if (LogicLayerMap == null)
         {
             GD.PrintErr("[Belt] LogicLayerMap is null in _Ready().");
@@ -31,15 +31,17 @@ public partial class Belt : Node2D
             return;
         }
 
-        var dir = main.GetBeltDirection(GridPosition);
+        var beltManager = main.GetNode<BeltManager>("BeltManager");
+        if (beltManager == null)
+        {
+            GD.PrintErr("[Belt] Could not find BeltManager node as a child of Main.");
+            return;
+        }
+        
+        var dir = beltManager.GetBeltDirection(GridPosition);
         if (dir != null)
         {
             Direction = dir.Value;
-            GD.Print($"[Belt] Direction set: {Direction}");
-        }
-        else
-        {
-            GD.PrintErr($"[Belt] No direction data for {GridPosition}");
         }
 
         // Get the ItemLayer from Main
@@ -49,10 +51,22 @@ public partial class Belt : Node2D
 
     }
 
+    public void Initialize(Vector2I gridPos, Vector2I direction, TileMapLayer logicLayer)
+    {
+        GridPosition = gridPos;
+        Direction = direction;
+        LogicLayerMap = logicLayer;
+    }
+
     public void PlaceItem(Item item)
     {
+        GD.Print($"[Belt] PlaceItem called at {GridPosition} with item {item}");
         // If there is already an item on this belt, do nothing
-        if (currentItem != null) return;
+        if (currentItem != null)
+        {
+            GD.Print($"[Belt] Already has item at {GridPosition}, cannot accept new item.");
+            return;
+        }
 
         // Set the current item to the new item
         currentItem = item;
@@ -62,6 +76,7 @@ public partial class Belt : Node2D
         {
             item.GetParent()?.RemoveChild(item); // Remove from previous parent if any
             itemLayer.AddChild(item); // Add to itemLayer
+            GD.Print($"[Belt] Item parent set to ItemLayer at {GridPosition}");
         }
 
         // Set the item's direction to match the belt's direction
@@ -69,9 +84,6 @@ public partial class Belt : Node2D
 
         // Reset progress to 0 (start at belt origin)
         itemProgress = 0f;
-
-        // Position item at belt position + zero offset along belt
-        currentItem.GlobalPosition = this.GlobalPosition;
     }
     public override void _Process(double delta)
     {
@@ -106,19 +118,22 @@ public partial class Belt : Node2D
 
                 // Place the item on the next belt
                 nextBelt.PlaceItem(itemToSend);
-                GD.Print($"Transferred item from {GridPosition} to {nextCell}"); // Debug print
+                GD.Print($"[Belt] Transferred item from {GridPosition} to {nextCell}");
             }
             else
             {
                 // Update the item's position smoothly along the belt
                 currentItem.GlobalPosition = this.GlobalPosition + new Vector2(Direction.X, Direction.Y) * itemProgress;
+                GD.Print($"[Belt] Moving item at {GridPosition}: progress={itemProgress}, pos={currentItem.GlobalPosition}");
             }
         }
         else
         {
-            // No next belt or cannot accept item — clamp position at belt end
-            itemProgress = Mathf.Min(itemProgress, 16f); // Always clamp to 16f max
+            // Always update the item's position, even if not moving
+            itemProgress = Mathf.Max(itemProgress, 0f); // Clamp to at least 0
             currentItem.GlobalPosition = this.GlobalPosition + new Vector2(Direction.X, Direction.Y) * itemProgress;
+            currentItem.Visible = true;
+            currentItem.QueueRedraw();
         }
     }
 

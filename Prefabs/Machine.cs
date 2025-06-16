@@ -9,7 +9,7 @@ public partial class Machine : Node2D
 
     private Item currentItem = null;
 
-    private float processingTime = 10.5f; // Time in seconds to process an item (configurable)
+    private float processingTime = 2f; // Time in seconds to process an item (configurable)
     private float processingTimer = 0f;
     private bool isProcessing = false;
 
@@ -24,24 +24,35 @@ public partial class Machine : Node2D
     public override void _Ready()
     {
         var main = GetTree().Root.GetNodeOrNull<Main>("Main");
-        if (main != null)
+        if (main == null)
         {
-            var inputDir = main.GetMachineInputDirection(GridPosition);
-            if (inputDir != null)
-            {
-                InputDirection = inputDir.Value;
-                GD.Print($"[Machine] Input direction for {GridPosition}: {InputDirection}");
-            }
-            else
-            {
-                GD.PrintErr($"[Machine] No input direction found for {GridPosition}");
-            }
-
-            // Get the ItemLayer node reference from Main
-            itemLayer = main.GetNode<Node2D>("ItemLayer");
-            if (itemLayer == null)
-                GD.PrintErr("[Machine] ItemLayer node not found in Main");
+            GD.PrintErr("[Machine] Could not find Main node.");
+            return;
         }
+        var machineManager = main.GetNode<MachineManager>("MachineManager");
+        if (machineManager == null)
+        {
+            GD.PrintErr("[Machine] Could not find MachineManager node.");
+
+            return;
+        }
+
+        var inputDir = machineManager.GetMachineInputDirection(GridPosition);
+        if (inputDir != null)
+        {
+            InputDirection = inputDir.Value;
+            GD.Print($"[Machine] Input direction for {GridPosition}: {InputDirection}");
+        }
+        else
+        {
+            GD.PrintErr($"[Machine] No input direction found for {GridPosition}");
+        }
+
+        // Get the ItemLayer node reference from Main
+        itemLayer = main.GetNode<Node2D>("ItemLayer");
+        if (itemLayer == null)
+            GD.PrintErr("[Machine] ItemLayer node not found in Main");
+
     }
 
     public override void _Process(double delta)
@@ -63,8 +74,7 @@ public partial class Machine : Node2D
                         // Add item as child of ItemLayer for correct layering
                         if (item.GetParent() != itemLayer)
                         {
-                            if (item.GetParent() != null)
-                                item.GetParent().RemoveChild(item);
+                            item.GetParent()?.RemoveChild(item);
                             itemLayer.AddChild(item);
                         }
 
@@ -103,18 +113,15 @@ public partial class Machine : Node2D
                 {
                     if (currentItem != null)
                     {
-                        // Get the output belt's direction (Vector2I)
                         var beltDir = belt.Direction;
                         currentItem.Direction = new Vector2(beltDir.X, beltDir.Y).Normalized();
                     }
-                    belt.PlaceItem(currentItem);
 
-                    // Remove from ItemLayer if still parented there
-                    if (currentItem != null && currentItem.GetParent() == itemLayer)
-                        itemLayer.RemoveChild(currentItem);
+                    belt.PlaceItem(currentItem);  // Let Belt fully take over the item
 
                     GD.Print($"✅ Machine at {GridPosition} pushed item to {outputCell} with direction {OutputDirection}");
-                    currentItem = null;
+
+                    currentItem = null;  // Machine no longer owns the item
                 }
                 else
                 {
